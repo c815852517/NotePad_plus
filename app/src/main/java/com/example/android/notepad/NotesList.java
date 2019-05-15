@@ -16,25 +16,24 @@
 
 package com.example.android.notepad;
 
-import com.example.android.notepad.NotePad;
-
 import android.app.ListActivity;
-import android.content.ClipboardManager;
 import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
@@ -60,6 +59,8 @@ public class NotesList extends ListActivity {
     private static final String[] PROJECTION = new String[] {
             NotePad.Notes._ID, // 0
             NotePad.Notes.COLUMN_NAME_TITLE, // 1
+            NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE,//在这里加入了修改时间的显示
+            NotePad.Notes.COLUMN_NAME_BACK_COLOR
     };
 
     /** The index of the title column */
@@ -68,6 +69,46 @@ public class NotesList extends ListActivity {
     /**
      * onCreate is called when Android starts this Activity from scratch.
      */
+    public class MyCursorAdapter extends SimpleCursorAdapter {
+        public MyCursorAdapter(Context context, int layout, Cursor c,
+                               String[] from, int[] to) {
+            super(context, layout, c, from, to);
+        }
+        @Override
+        public void bindView(View view, Context context, Cursor cursor){
+            super.bindView(view, context, cursor);
+            //从数据库中读取的cursor中获取笔记列表对应的颜色数据，并设置笔记颜色
+            int x = cursor.getInt(cursor.getColumnIndex(NotePad.Notes.COLUMN_NAME_BACK_COLOR));
+            /**
+             * 白 255 255 255
+             * 黄 247 216 133
+             * 蓝 165 202 237
+             * 绿 161 214 174
+             * 红 244 149 133
+             */
+            switch (x){
+                case NotePad.Notes.DEFAULT_COLOR:
+                    view.setBackgroundColor(Color.rgb(255, 255, 255));
+                    break;
+                case NotePad.Notes.YELLOW_COLOR:
+                    view.setBackgroundColor(Color.rgb(247, 216, 133));
+                    break;
+                case NotePad.Notes.BLUE_COLOR:
+                    view.setBackgroundColor(Color.rgb(165, 202, 237));
+                    break;
+                case NotePad.Notes.GREEN_COLOR:
+                    view.setBackgroundColor(Color.rgb(161, 214, 174));
+                    break;
+                case NotePad.Notes.RED_COLOR:
+                    view.setBackgroundColor(Color.rgb(244, 149, 133));
+                    break;
+                default:
+                    view.setBackgroundColor(Color.rgb(255, 255, 255));
+                    break;
+            }
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -117,15 +158,19 @@ public class NotesList extends ListActivity {
          */
 
         // The names of the cursor columns to display in the view, initialized to the title column
-        String[] dataColumns = { NotePad.Notes.COLUMN_NAME_TITLE } ;
+        String[] dataColumns = {
+                NotePad.Notes.COLUMN_NAME_TITLE ,
+                NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE
+                //NotePad.Notes.COLUMN_NAME_CREATE_DATE
+        } ;
 
         // The view IDs that will display the cursor columns, initialized to the TextView in
         // noteslist_item.xml
-        int[] viewIDs = { android.R.id.text1 };
+        int[] viewIDs = { android.R.id.text1 , R.id.text2};
 
         // Creates the backing adapter for the ListView.
-        SimpleCursorAdapter adapter
-            = new SimpleCursorAdapter(
+        MyCursorAdapter adapter
+            = new MyCursorAdapter(
                       this,                             // The Context for the ListView
                       R.layout.noteslist_item,          // Points to the XML for a list item
                       cursor,                           // The cursor to get items from
@@ -279,6 +324,10 @@ public class NotesList extends ListActivity {
            */
           startActivity(new Intent(Intent.ACTION_PASTE, getIntent().getData()));
           return true;
+
+          case R.id.menu_search:
+              startActivity(new Intent(Intent.ACTION_SEARCH,getIntent().getData()));
+              return true;
         default:
             return super.onOptionsItemSelected(item);
         }

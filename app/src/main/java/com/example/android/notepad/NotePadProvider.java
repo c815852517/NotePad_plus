@@ -16,15 +16,13 @@
 
 package com.example.android.notepad;
 
-import com.example.android.notepad.NotePad;
-
 import android.content.ClipDescription;
 import android.content.ContentProvider;
+import android.content.ContentProvider.PipeDataWriter;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.UriMatcher;
-import android.content.ContentProvider.PipeDataWriter;
 import android.content.res.AssetFileDescriptor;
 import android.content.res.Resources;
 import android.database.Cursor;
@@ -45,7 +43,10 @@ import java.io.IOException;
 import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.io.UnsupportedEncodingException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.TimeZone;
 
 /**
  * Provides access to a database of notes. Each note has a title, the note
@@ -85,7 +86,6 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
     };
     private static final int READ_NOTE_NOTE_INDEX = 1;
     private static final int READ_NOTE_TITLE_INDEX = 2;
-
     /*
      * Constants used by the Uri matcher to choose an action based on the pattern
      * of the incoming URI
@@ -156,6 +156,9 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
                 NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE,
                 NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE);
 
+        sNotesProjectionMap.put(NotePad.Notes.COLUMN_NAME_TEXT_SIZE, NotePad.Notes.COLUMN_NAME_TEXT_SIZE);
+        sNotesProjectionMap.put(NotePad.Notes.COLUMN_NAME_TEXT_COLOR, NotePad.Notes.COLUMN_NAME_TEXT_COLOR);
+        sNotesProjectionMap.put(NotePad.Notes.COLUMN_NAME_BACK_COLOR, NotePad.Notes.COLUMN_NAME_BACK_COLOR);
         /*
          * Creates an initializes a projection map for handling Live Folders
          */
@@ -196,7 +199,10 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
                    + NotePad.Notes.COLUMN_NAME_TITLE + " TEXT,"
                    + NotePad.Notes.COLUMN_NAME_NOTE + " TEXT,"
                    + NotePad.Notes.COLUMN_NAME_CREATE_DATE + " INTEGER,"
-                   + NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE + " INTEGER"
+                   + NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE + " INTEGER,"
+                   + NotePad.Notes.COLUMN_NAME_TEXT_COLOR + " INTEGER,"
+                   + NotePad.Notes.COLUMN_NAME_TEXT_SIZE + " INTEGER,"
+                   + NotePad.Notes.COLUMN_NAME_BACK_COLOR + " INTEGER"
                    + ");");
        }
 
@@ -518,15 +524,20 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
         // Gets the current system time in milliseconds
         Long now = Long.valueOf(System.currentTimeMillis());
 
+        Date date = new Date(now);
+        SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        format.setTimeZone(TimeZone.getTimeZone("GMT+08:00"));
+        String dateTime = format.format(date);
+
         // If the values map doesn't contain the creation date, sets the value to the current time.
         if (values.containsKey(NotePad.Notes.COLUMN_NAME_CREATE_DATE) == false) {
-            values.put(NotePad.Notes.COLUMN_NAME_CREATE_DATE, now);
+            values.put(NotePad.Notes.COLUMN_NAME_CREATE_DATE, dateTime);
         }
 
         // If the values map doesn't contain the modification date, sets the value to the current
         // time.
         if (values.containsKey(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE) == false) {
-            values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, now);
+            values.put(NotePad.Notes.COLUMN_NAME_MODIFICATION_DATE, dateTime);
         }
 
         // If the values map doesn't contain a title, sets the value to the default title.
@@ -540,6 +551,17 @@ public class NotePadProvider extends ContentProvider implements PipeDataWriter<C
             values.put(NotePad.Notes.COLUMN_NAME_NOTE, "");
         }
 
+        if (values.containsKey(NotePad.Notes.COLUMN_NAME_TEXT_SIZE) == false) {
+            values.put(NotePad.Notes.COLUMN_NAME_NOTE, "40");
+        }
+
+        if (values.containsKey(NotePad.Notes.COLUMN_NAME_TEXT_COLOR) == false) {
+            values.put(NotePad.Notes.COLUMN_NAME_NOTE, NotePad.Notes.BLACK_COLOR);
+        }
+
+        if(values.containsKey(NotePad.Notes.COLUMN_NAME_BACK_COLOR) == false){
+            values.put(NotePad.Notes.COLUMN_NAME_BACK_COLOR, NotePad.Notes.DEFAULT_COLOR);
+        }
         // Opens the database object in "write" mode.
         SQLiteDatabase db = mOpenHelper.getWritableDatabase();
 
