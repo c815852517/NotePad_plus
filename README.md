@@ -92,6 +92,8 @@ private final void updateNote(String text, String title) {
 ```
 增加时间戳后结果如图：
 
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/时间戳显示.png)
+
 #### 2.添加笔记查询功能（按标题查询）
 首先在list_options_menu.xml中添加搜索：
 
@@ -228,6 +230,11 @@ public class NoteSearch extends Activity implements SearchView.OnQueryTextListen
 ```
 添加搜索功能后结果截图：
 
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/搜索1.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/搜索2.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/搜索3.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/搜索4.png)
+
 #### 3.更改记事本背景
 把NoteLis背景色从t黑色换成白色，在AndroidManifest.xml中NotesList的Activity中添加：
 
@@ -238,6 +245,8 @@ public class NoteSearch extends Activity implements SearchView.OnQueryTextListen
     android:theme="@android:style/Theme.Holo.Light">
 ```
 效果如图：
+
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/搜索1.png)
 
 #### 4.文字字体大小及颜色修改
 先在editor_options_menu.xml添加相应的更改字体颜色大小：
@@ -330,6 +339,8 @@ case R.id.blue_font:
 ```
 实现效果如图：
 
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/字体1.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/字体2.png)
 
 #### 5.增加笔记本编辑背景色
 数据库中添加背景色字段：
@@ -535,6 +546,8 @@ public class NoteColor extends Activity {
 ```
 实现后效果如图
 
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/背景色1.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/背景色2.png)
 
 #### 6.导出笔记至本地
 先在editor_options_menu.xml中添加一个导出笔记的选项：
@@ -719,3 +732,9 @@ public class OutputText extends Activity {
 <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 ```
 实现效果如图：
+
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/导出笔记1.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/导出笔记2.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/导出笔记3.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/导出笔记4.png)
+![](https://github.com/c815852517/NotePad_plus/blob/master/app/导出笔记5.png)
